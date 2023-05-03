@@ -25,7 +25,6 @@ class Main:
     board.blitBoard(screen)
     
 
-
     while running:
 
         #event handling

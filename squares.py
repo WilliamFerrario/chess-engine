@@ -20,5 +20,8 @@ class Squares:
     def getPiece(self):
         return self.piece
     
+    def getPos(self):
+        return (self.row, self.col)
+    
     def removePiece(self):
         self.piece = None
