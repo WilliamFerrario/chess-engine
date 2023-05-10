@@ -2,8 +2,10 @@ import pygame
 import sys
 
 from constants import *
-from board import Board
+from board import *
+import engine as eng
 from piece import *
+from squares import *
 
 class Main:
 
@@ -21,10 +23,14 @@ class Main:
     square_color1 = (173,189,143)
     square_color2 = (111,143,114)
 
+    #instantiate board obj
     board = Board()
     board.blitBoard(screen)
-    
 
+    depth = 3
+
+    #boardList = []
+    
     while running:
 
         #event handling
@@ -36,6 +42,33 @@ class Main:
         #update display
         board.blitBoard(screen)
         pygame.display.update()
+
+        # if (board.engineColor == "white" and board.player == "white"):
+        #     while (board.isCheckMate("white") == False):
+        #         print("thinking")
+        #         playEngineMove(board, 3, "white")
+        # elif (board.engineColor == "black" and board.player == "black"):
+        #     while (board.isCheckMate("black") == False):
+        #         print("thinking")
+        #         playEngineMove(board, 3, "black")
+
+        if (board.engineColor == "white" and board.player == "white"):
+            print("thinking")
+            engine = eng.Engine(board, depth, "white")
+            bestmove = engine.getBestMove()
+            #boardList.append(bestmove)
+            board.move(bestmove[0], bestmove[1])
+            board.player = "black"
+            
+        elif (board.engineColor == "black" and board.player == "black"):
+            print("thinking")
+            engine = eng.Engine(board, depth, "black")
+            bestmove = engine.getBestMove()
+            #boardList.append(bestmove)
+            board.move(bestmove[0], bestmove[1])
+            board.player = "white"
+            
+                
 
     pygame.quit()
     

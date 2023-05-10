@@ -3,6 +3,7 @@ from pieces import *
 from constants import *
 import sys
 from squares import *
+#import engine as eng
 
 class Board:
     def __init__(self):
@@ -13,8 +14,16 @@ class Board:
         self.dragging = False
         self.square = None
         self.valid_moves = []
+        self.legal_moves = []
         self.player = "white"
-        self.side = "w"
+        self.side = "white"
+        self.engineColor = "black"
+        self.movesNum = 0
+        self.boardList = []
+        
+
+    def getMovesNum(self):
+        return self.movesNum
 
     #dragging methods
     def getSquare(self, pos):
@@ -25,6 +34,16 @@ class Board:
         col = pos[0] // SQSIZE
         row = pos[1] // SQSIZE
         return (row, col)
+    
+    def getSquareFromCoord(self, row, col):
+        square = self.board[row][col]
+        return square
+
+    def getSquareObj(self, row, col):
+        square = self.board[row][col]
+        piece = square.getPiece()
+        #print(piece)
+        return piece
     
     #offset for icon appearing in middle of square
     def getSquareCenter(self, square):
@@ -40,6 +59,27 @@ class Board:
                 valid_move = True
                 return valid_move
             
+    def getAllMoves(self, color):
+        moves = []
+        for row in range(ROWS):
+            for col in range(COLS):
+                square = self.board[row][col]
+                piece = square.getPiece()
+
+                if isinstance(piece, Pawn) and piece is not None and piece.color == color:
+                    valid_moves = piece.get_valid_moves((row, col), self.board, self.side)
+                    for move in valid_moves:
+                        if not self.isCheckAfterMove((row, col), move):
+                            moves.append(((row, col), move))
+
+                elif piece is not None and piece.color == color:
+                    valid_moves = piece.get_valid_moves((row, col), self.board)
+                    for move in valid_moves:
+                        if not self.isCheckAfterMove((row, col), move):
+                            moves.append(((row, col), move))
+        return moves
+
+
     #is player in check
     def isCheck(self, player):
         for row in self.board:
@@ -71,6 +111,10 @@ class Board:
         # move the piece
         start_piece = self.board[start_square[0]][start_square[1]].getPiece()
         end_piece = self.board[end_square[0]][end_square[1]].getPiece()
+
+        if start_piece is None:
+            return False
+
         self.board[end_square[0]][end_square[1]].setPiece(start_piece)
         self.board[start_square[0]][start_square[1]].setPiece(None)
 
@@ -133,21 +177,28 @@ class Board:
             sys.exit()
 
         if event.type == pygame.KEYDOWN:
+
+            if event.key == pygame.K_t:
+                pls = self.getAllMoves("black")
+                print(pls)
+
             if event.key == pygame.K_r:
                 self.reset()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
 
-                if self.side == "b":
-                    self.side = "w"
+                if self.side == "black":
+                    self.side = "white"
+                    self.engineColor = "black"
                 else:
-                    self.side = "b"
+                    self.side = "black"
+                    self.engineColor = "white"
 
                 self.reset()
-                if self.side == "w":
+                if self.side == "white":
                     self.makePiece2()
-                if self.side == "b":
+                if self.side == "black":
                     self.makePiece()
 
         #clicking / dragging event
@@ -168,7 +219,8 @@ class Board:
                         self.valid_moves = piece.get_valid_moves(square, self.board, self.side)
                         return
                     self.valid_moves = piece.get_valid_moves(square, self.board)
-                    print(self.valid_moves)
+                    #print(self.valid_moves)
+                    
 
 
 
@@ -187,6 +239,11 @@ class Board:
                 self.selectedPiece = None
                 self.dragging = False
 
+                # if self.isValidMove(square1, self.valid_moves) and not self.isCheckAfterMove(square, square1):
+                #     self.move_piece(square, square1, mousePos1)
+                #     #self.engine.makeMove()
+                #     #allow engine to move after human
+
         elif event.type == pygame.MOUSEMOTION and self.dragging:
             mousePos = pygame.mouse.get_pos()
             self.selectedPiecePos = mousePos
@@ -194,13 +251,12 @@ class Board:
 
     def move_piece(self, start_square, end_square, end_pos):
         
-        print(start_square, end_square)
+        #print(start_square, end_square)
         start_piece = self.board[start_square[0]][start_square[1]].getPiece() #maybe change to getrow n col or just sqyare
         end_piece = self.board[end_square[0]][end_square[1]].getPiece()
         
         if start_piece is None or (end_piece is not None and hasattr(end_piece, 'color') and end_piece.color == start_piece.color):
             return
-
 
         if end_piece is not None and end_piece.color != start_piece.color:
             self.board[end_square[0]][end_square[1]].setPiece(None)
@@ -210,13 +266,14 @@ class Board:
             self.board[end_square[0]][end_square[1]].setPiece(Queen(start_piece.color, end_square))
         else:
             self.board[end_square[0]][end_square[1]].setPiece(start_piece)
-
-
         
         self.board[start_square[0]][start_square[1]].setPiece(None)
         self.selectedPiecePos = end_pos
         self.selectedPiece.rect.center = end_pos
 
+        self.movesNum += 1
+
+        # Switch the player
         if self.player == "white":
             self.player = "black"
         else:
@@ -228,12 +285,32 @@ class Board:
         if self.isCheckMate(self.player):
             print(f"{self.player} is in checkmate!")
 
+    #this move method is for AI only
+    def move(self, start_square, end_square):
+
+        start_piece = self.board[start_square[0]][start_square[1]].getPiece()
+        end_piece = self.board[end_square[0]][end_square[1]].getPiece()
+        self.board[end_square[0]][end_square[1]].setPiece(start_piece)
+        self.board[start_square[0]][start_square[1]].setPiece(None)
+
+        self.movesNum += 1
+
+        # Switch the player
+        # if self.player == "white":
+        #     self.player = "black"
+        # else:
+        #     self.player = "white"
+
+
+
+
     def reset(self):
             for row in range(ROWS):
                 for col in range(COLS):
                     self.board[row][col].setPiece(None)
             self.makePiece2()
             self.player = "white"
+            self.boardList = []
 
     def makePiece(self):
         #white starting pieces

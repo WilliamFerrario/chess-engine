@@ -25,7 +25,7 @@ class Pawn(Piece):
     def get_valid_moves(self, start, board, side):
         valid_moves = []
 
-        if self.color == "black" and side == "b":
+        if self.color == "black" and side == "black":
             if start[0] > 0:
                 if start[0] < 6:
                     self.has_moved = True
@@ -42,7 +42,7 @@ class Pawn(Piece):
                 if start[1] < 7 and board[start[0] - 1][start[1] + 1].getPiece() is not None and board[start[0] - 1][start[1] + 1].getPiece().color == "white":
                     valid_moves.append((start[0] - 1, start[1] + 1))
 
-        elif self.color == "black" and side == "w":
+        elif self.color == "black" and side == "white":
             if start[0] < 7:
                 if start[0] > 1:
                     self.has_moved = True
@@ -59,7 +59,7 @@ class Pawn(Piece):
                 if start[1] < 7 and board[start[0] + 1][start[1] + 1].getPiece() is not None and board[start[0] + 1][start[1] + 1].getPiece().color == "white":
                     valid_moves.append((start[0] + 1, start[1] + 1))
 
-        elif self.color == "white" and side == "w":
+        elif self.color == "white" and side == "white":
             if start[0] > 0:
                 if start[0] < 6:
                     self.has_moved = True
@@ -76,7 +76,7 @@ class Pawn(Piece):
                 if start[1] < 7 and board[start[0] - 1][start[1] + 1].getPiece() is not None and board[start[0] - 1][start[1] + 1].getPiece().color == "black":
                     valid_moves.append((start[0] - 1, start[1] + 1))
 
-        elif self.color == "white" and side == "b":
+        elif self.color == "white" and side == "black":
             if start[0] < 7:
                 if start[0] > 1:
                     self.has_moved = True
@@ -105,7 +105,7 @@ class Rook(Piece):
         self.type = 'Rook'
         self.has_moved = False
         self.location = location
-        self.value = 5
+        self.value = 5.1
         if self.color == 'white':
             self.image = pygame.image.load('assets\\images\\imgs-80px\\white_rook.png')
         else:
@@ -201,7 +201,7 @@ class Knight(Piece):
         self.image = None
         self.type = 'Knight'
         self.location = location
-        self.value = 3
+        self.value = 3.2
         if self.color == 'white':
             self.image = pygame.image.load('assets\\images\\imgs-80px\\white_knight.png')
         else:
@@ -243,7 +243,7 @@ class Bishop(Piece):
         self.image = None
         self.type = 'Bishop'
         self.location = location
-        self.value = 3
+        self.value = 3.33
         if self.color == 'white':
             self.image = pygame.image.load('assets\\images\\imgs-80px\\white_bishop.png')
         else:
@@ -397,7 +397,7 @@ class Queen(Piece):
         self.image = None
         self.type = 'Queen'
         self.location = location
-        self.value = 9
+        self.value = 8.8
         if self.color == 'white':
             self.image = pygame.image.load('assets\\images\\imgs-80px\\white_queen.png')
         else:
