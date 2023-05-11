@@ -13,13 +13,12 @@ class Engine:
         self.color = color
         self.boardList = []
 
-
     def evaluation(self):
         count = 0
         for i in range(8):
             for o in range(8):
-                count += self.squareResPoints(i, o)
-        count += self.mateOppertunity() + self.opening() + 0.001 * rand.random()
+                count += self.squarePoints(i, o)
+        count += self.potentialMate() + self.opening() + 0.001 * rand.random()
         # random FLOAT between 0 and 1 is better for AB pruning... dont ask why
         return count
 
@@ -27,7 +26,7 @@ class Engine:
         return self.engine(None, 1)
 
     #building eval function
-    def mateOppertunity(self):
+    def potentialMate(self):
         #if no legal moves
         if (len(self.board.getAllMoves(self.board.engineColor)) == 0):
             if (self.board.engineColor == self.color):
@@ -42,7 +41,7 @@ class Engine:
 
     def opening(self):
         #number of full moves since the start of game
-        if (self.board.getMovesNum() < 7):
+        if (self.board.getMovesNum() < 15):
             if (self.board.engineColor == self.color):
                 return 1/30 * len(self.board.getAllMoves(self.board.engineColor))
             else:
@@ -50,13 +49,9 @@ class Engine:
         else:
             return 0
 
-
-    #input pieces
     #takes a square as input and returns the hb's
     #system value of its resident
-    def squareResPoints(self, row, col):
-        
-        #print (row, col)
+    def squarePoints(self, row, col):
 
         pieceValue = 0
         piece = self.board.getSquareObj(row, col)
@@ -75,13 +70,9 @@ class Engine:
             return -pieceValue
         else:
             return pieceValue
-        
-    
 
     #recursion function for the engine
     def engine(self, candidate, depth):
-
-        #print(self.board)
         
         #if reach 0 legal moves then end in decision tree
         if (depth == self.maxDepth or len(self.board.getAllMoves(self.board.engineColor)) == 0):
@@ -92,36 +83,35 @@ class Engine:
             moveList = list(self.board.getAllMoves(self.board.engineColor))
 
             #init new candidate
-            newCandidate = None
+            possibleCandidate = None
 
             #recursive param to give info on where best candidate is while minimaxing for children nodes
             if (depth % 2 != 0):
-                newCandidate = float(-math.inf)
+                possibleCandidate = float(-math.inf)
             else:
-                newCandidate = float(math.inf)
+                possibleCandidate = float(math.inf)
 
             for i in moveList:
                 #play the move i
                 self.boardList.append(i)
 
                 #get the value of move i
-                value = self.engine(newCandidate, depth + 1)
+                value = self.engine(possibleCandidate, depth + 1)
 
-                #minimax alg (without AB Pruning)
                 #if maximizing (engine's turn)
                 #if maximizing we change candidate to neighboring nodes
-                if(value > newCandidate and depth % 2 != 0):
+                if(value > possibleCandidate and depth % 2 != 0):
                     #change candidate
-                    newCandidate = value
+                    possibleCandidate = value
                     if (depth == 1):
                         move = i
-                    newCandidate = value
+                    possibleCandidate = value
                 
                 #if minimizing (human turn)
                 #inverse of maximizing func... obviously
-                elif(value < newCandidate and depth % 2 == 0):
+                elif(value < possibleCandidate and depth % 2 == 0):
                     #change candidate
-                    newCandidate = value
+                    possibleCandidate = value
                     #not saving move since players turn
 
                 #AB pruning deletions case I
@@ -141,7 +131,7 @@ class Engine:
 
         if (depth > 1):
             #return value of the node in the tree
-            return newCandidate
+            return possibleCandidate
         else:
             #return the move itself
             #print (move)

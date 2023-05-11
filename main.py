@@ -1,5 +1,4 @@
 import pygame
-import sys
 
 from constants import *
 from board import *
@@ -27,9 +26,8 @@ class Main:
     board = Board()
     board.blitBoard(screen)
 
-    depth = 3
-
-    #boardList = []
+    #set depth
+    depth = board.depth
     
     while running:
 
@@ -39,36 +37,26 @@ class Main:
                 running = False
             else:
                 board.handleEvent(event)
+
         #update display
         board.blitBoard(screen)
         pygame.display.update()
 
-        # if (board.engineColor == "white" and board.player == "white"):
-        #     while (board.isCheckMate("white") == False):
-        #         print("thinking")
-        #         playEngineMove(board, 3, "white")
-        # elif (board.engineColor == "black" and board.player == "black"):
-        #     while (board.isCheckMate("black") == False):
-        #         print("thinking")
-        #         playEngineMove(board, 3, "black")
+        if not (board.isCheckMate("white")) and not (board.isCheckMate("black")):
 
-        if (board.engineColor == "white" and board.player == "white"):
-            print("thinking")
-            engine = eng.Engine(board, depth, "white")
-            bestmove = engine.getBestMove()
-            #boardList.append(bestmove)
-            board.move(bestmove[0], bestmove[1])
-            board.player = "black"
-            
-        elif (board.engineColor == "black" and board.player == "black"):
-            print("thinking")
-            engine = eng.Engine(board, depth, "black")
-            bestmove = engine.getBestMove()
-            #boardList.append(bestmove)
-            board.move(bestmove[0], bestmove[1])
-            board.player = "white"
-            
+            if (board.engineColor == "white" and board.player == "white"):
+                print("thinking")
+                engine = eng.Engine(board, depth, "white")
+                bestmove = engine.getBestMove()
+                board.move(bestmove[0], bestmove[1])
+                board.player = "black"
                 
+            elif (board.engineColor == "black" and board.player == "black"):
+                print("thinking")
+                engine = eng.Engine(board, depth, "black")
+                bestmove = engine.getBestMove()
+                board.move(bestmove[0], bestmove[1])
+                board.player = "white" 
 
     pygame.quit()
     

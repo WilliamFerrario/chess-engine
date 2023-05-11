@@ -1,6 +1,3 @@
-import sys
-import pygame
-import math
 
 class Piece:
     

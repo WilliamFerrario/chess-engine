@@ -21,6 +21,7 @@ class Board:
         self.movesNum = 0
         self.boardList = []
         
+        self.depth = 3
 
     def getMovesNum(self):
         return self.movesNum
@@ -42,7 +43,6 @@ class Board:
     def getSquareObj(self, row, col):
         square = self.board[row][col]
         piece = square.getPiece()
-        #print(piece)
         return piece
     
     #offset for icon appearing in middle of square
@@ -154,7 +154,6 @@ class Board:
                 if piece is not None and piece.color == player:
                     if isinstance(piece, Pawn):
                         valid_moves = piece.get_valid_moves((row, col), self.board, self.side)
-
                     else:
                         valid_moves = piece.get_valid_moves((row, col), self.board)
                     
@@ -162,12 +161,10 @@ class Board:
                         if not self.isCheckAfterMove((row, col), move):
                             # move that can get king out of check
                             return False
-
+                        
         # no move found to get out of check, game over
         return True
-        
 
-    
     
     #event handling
     def handleEvent(self, event):
@@ -178,9 +175,19 @@ class Board:
 
         if event.type == pygame.KEYDOWN:
 
-            if event.key == pygame.K_t:
-                pls = self.getAllMoves("black")
-                print(pls)
+            if event.key == pygame.K_1:
+                self.depth = 1
+
+            if event.key == pygame.K_2:
+                self.depth = 2
+            
+            if event.key == pygame.K_3:
+                self.depth = 3
+            
+            if event.key == pygame.K_4:
+                self.depth = 4
+
+            print ("Depth is set to ", self.depth)
 
             if event.key == pygame.K_r:
                 self.reset()
